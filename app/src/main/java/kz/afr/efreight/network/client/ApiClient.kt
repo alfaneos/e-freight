@@ -6,6 +6,7 @@ import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.OkHttpClient
 import retrofit2.converter.gson.GsonConverterFactory
 import com.jakewharton.retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
+import io.paperdb.Paper
 import kz.afr.efreight.App
 import kz.afr.efreight.R
 import retrofit2.Retrofit
@@ -14,9 +15,12 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     private var retrofit: Retrofit? = null
-    private val REQUEST_TIMEOUT = 60
+    private val REQUEST_TIMEOUT = 20
     private var okHttpClient: OkHttpClient? = null
     private val base_url = App.instance.getString(R.string.base_url)
+
+    const val USERNAME_PREFS = "username"
+    const val PASSWORD_PREFS = "password"
 
     fun getClient(context: Context): Retrofit {
 
@@ -45,11 +49,16 @@ object ApiClient {
 
         httpClient.addInterceptor(interceptor)
 
+        val username: String = Paper.book().read(USERNAME_PREFS)
+        val password: String = Paper.book().read(PASSWORD_PREFS)
+
         httpClient.addInterceptor { chain ->
             val original = chain.request()
             val requestBuilder = original.newBuilder()
                 .addHeader("Accept", "application/json")
                 .addHeader("Content-Type", "application/json")
+                .addHeader("HTTP_X_ASCCPE_USERNAME", username)
+                .addHeader("HTTP_X_ASCCPE_PASSWORD", password)
 
             // Adding Authorization token (API Key)
             // Requests will be denied without API key
