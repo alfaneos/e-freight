@@ -15,7 +15,7 @@ import java.util.concurrent.TimeUnit
 
 object ApiClient {
     private var retrofit: Retrofit? = null
-    private val REQUEST_TIMEOUT = 20
+    private val REQUEST_TIMEOUT = 10
     private var okHttpClient: OkHttpClient? = null
     private val base_url = App.instance.getString(R.string.base_url)
 

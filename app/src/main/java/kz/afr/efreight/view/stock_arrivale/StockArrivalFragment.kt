@@ -1,11 +1,12 @@
 package kz.afr.efreight.view.stock_arrivale
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -20,14 +21,12 @@ import kz.afr.efreight.network.service.ApiService
 import kz.osultasign.view.stock_arrivale.StockArrivalViewModel
 
 
-class StockArrivalFragment : Fragment() {
+class StockArrivalFragment : Fragment(), RecyclerAdapter.ProcedureDelegate {
 
-    companion object {
-        fun newInstance() = StockArrivalFragment()
-    }
 
 
     private var recyclerView: RecyclerView? = null
+    private var progressBar: ProgressBar? = null
     private lateinit var viewModel: StockArrivalViewModel
     private var apiService: ApiService? = null
 
@@ -41,13 +40,12 @@ class StockArrivalFragment : Fragment() {
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         viewModel = ViewModelProviders.of(this).get(StockArrivalViewModel::class.java)
-    }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
         recyclerView = view?.findViewById(R.id.rv)
-
+        progressBar = view?.findViewById(R.id.progress)
     }
+
+
 
     override fun onResume() {
         super.onResume()
@@ -57,6 +55,10 @@ class StockArrivalFragment : Fragment() {
     private fun loadData(){
         apiService = (context as? BaseActivity)?.apiService
 
+        recyclerView?.visibility = View.GONE
+        progressBar?.visibility = View.VISIBLE
+
+
         apiService?.let {
             it.fetchProceduresById(15256)
                 .subscribeOn(Schedulers.io())
@@ -64,12 +66,18 @@ class StockArrivalFragment : Fragment() {
                 .subscribe(object : SingleObserver<ArrayList<Procedure>>{
                     override fun onSuccess(t: ArrayList<Procedure>) {
                         setRecycler(t)
+
+                        recyclerView?.visibility = View.VISIBLE
+                        progressBar?.visibility = View.GONE
                     }
 
                     override fun onSubscribe(d: Disposable) = Unit
 
                     override fun onError(e: Throwable) {
                         Toast.makeText(context, e.toString(), Toast.LENGTH_SHORT).show()
+
+                        recyclerView?.visibility = View.VISIBLE
+                        progressBar?.visibility = View.GONE
                     }
 
                 })
@@ -77,8 +85,12 @@ class StockArrivalFragment : Fragment() {
     }
 
     private fun setRecycler(list: ArrayList<Procedure>){
-        recyclerView?.adapter = RecyclerAdapter(list, context!!)
+        recyclerView?.adapter = RecyclerAdapter(list, context!!, this)
         recyclerView?.layoutManager = LinearLayoutManager(context!!)
+    }
+
+    override fun itemClicked(item: Procedure) {
+        (activity as? BaseActivity)?.startFragment(ProcedureDetailsFragment())
     }
 
 }

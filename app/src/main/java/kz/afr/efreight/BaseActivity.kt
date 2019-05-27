@@ -3,9 +3,12 @@ package kz.afr.efreight
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
 import io.paperdb.Paper
 import kz.afr.efreight.network.client.ApiClient
 import kz.afr.efreight.network.service.ApiService
+
+
 
 abstract class BaseActivity : AppCompatActivity() {
 
@@ -20,5 +23,13 @@ abstract class BaseActivity : AppCompatActivity() {
 
     fun showMessage(string: String) {
         Toast.makeText(this, string, Toast.LENGTH_SHORT).show()
+    }
+
+    fun startFragment(fragment: Fragment){
+        val transaction = supportFragmentManager.beginTransaction()
+        transaction.add(R.id.frame, fragment, fragment.javaClass.canonicalName)
+        transaction.addToBackStack(fragment.javaClass.canonicalName)
+        transaction.commit()
+
     }
 }

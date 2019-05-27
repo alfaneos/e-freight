@@ -65,8 +65,8 @@ class MainActivity : BaseActivity() {
 
     inner class PagerAdapter(fm: FragmentManager) : FragmentPagerAdapter(fm) {
         override fun getItem(position: Int): Fragment = when (position) {
-            0 -> ReceiverAcceptFragment()
-            else -> StockArrivalFragment()
+            0 -> StockArrivalFragment()
+            else -> ReceiverAcceptFragment()
         }
 
         override fun getCount(): Int = 3
